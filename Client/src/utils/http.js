@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const http = axios.create({
-    baseURL: 'http://localhost:1000/api/v1',
+    baseURL: 'https://expense-management-pq7m.onrender.com/api/v1',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
