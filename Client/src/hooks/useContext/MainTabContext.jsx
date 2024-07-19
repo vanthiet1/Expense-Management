@@ -2,7 +2,8 @@ import { useState } from "react";
 import { createContext } from "react";
 export const TabUiMainContent = createContext()
 const MainTabContext = ({ children }) => {
-    const [tabContentCreateBudget, setTabContentCreateBudget] = useState(JSON.parse(localStorage.getItem('tabContentBudget')))
+    const [tabContentCreateBudget, setTabContentCreateBudget] = useState(1)
+   
     const handleShowContent = (next) => {
         localStorage.setItem('tabContentBudget', JSON.stringify(next))
         const tabNumber = JSON.parse(localStorage.getItem('tabContentBudget'))

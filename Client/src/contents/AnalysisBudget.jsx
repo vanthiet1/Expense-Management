@@ -3,7 +3,6 @@ import Chart from "./Analysis/Chart";
 import { AuthUserContext } from "../hooks/useContext/AuthContext";
 const AnalysisBudget = () => {
     const { user } = useContext(AuthUserContext)
-    console.log(user);
     return (
         <>
             {user.length === 0 ? (

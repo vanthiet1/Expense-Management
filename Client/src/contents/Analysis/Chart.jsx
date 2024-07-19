@@ -2,7 +2,6 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import Chart from 'react-apexcharts';
 import subCategoriesService from '../../services/subCategories/subCategoriesService';
 import { AuthUserContext } from '../../hooks/useContext/AuthContext';
-import { MoonLoader } from 'react-spinners';
 
 const ChartHome = () => {
     const { user } = useContext(AuthUserContext);
@@ -116,7 +115,7 @@ const ChartHome = () => {
         <>
             {data.length === 0 ? (
                 <div className='flex justify-center items-center'>
-                    <MoonLoader color="#0be1db" />
+                    <span className='text-[25px]'>Hiện tại chưa có dữ liệu vui lòng thêm chi tiêu và ngân sách</span>
                 </div>
             ) : (
                 <>
