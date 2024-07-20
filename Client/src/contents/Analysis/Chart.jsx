@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import subCategoriesService from '../../services/subCategories/subCategoriesService';
 import { AuthUserContext } from '../../hooks/useContext/AuthContext';
@@ -9,31 +9,17 @@ const ChartHome = () => {
     const [series, setSeries] = useState([]);
     const [percentage, setPercentage] = useState([]);
     const [currentChart, setCurrentChart] = useState('bar'); 
-    const [barOptions, setBarOptions] = useState({
-        chart: {
-            type: 'bar'
-        },
-        xaxis: {
-            categories: []
-        },
-        fill: {
-            opacity: 1
-        },
-        stroke: {
-            width: 1,
-            colors: undefined
-        },
+
+    const barOptions = {
+        chart: { type: 'bar' },
+        xaxis: { categories: nameSubCategories },
+        fill: { opacity: 1 },
+        stroke: { width: 1, colors: undefined },
         yaxis: {
             show: true,
-            labels: {
-                formatter: function (value) {
-                    return value + '%';
-                }
-            }
+            labels: { formatter: value => `${value}%` }
         },
-        legend: {
-            position: 'bottom'
-        },
+        legend: { position: 'bottom' },
         plotOptions: {
             bar: {
                 horizontal: false,
@@ -41,29 +27,16 @@ const ChartHome = () => {
                 endingShape: 'rounded'
             }
         },
-        theme: {
-            monochrome: {
-                enabled: false
-            }
-        },
-        colors: ['#EC4899'], 
-    });
+        theme: { monochrome: { enabled: false } },
+        colors: ['#EC4899']
+    };
 
-    const [pieOptions, setPieOptions] = useState({
-        chart: {
-            type: 'pie'
-        },
-        labels: [],
-        fill: {
-            opacity: 1
-        },
-        stroke: {
-            width: 1,
-            colors: undefined
-        },
-        legend: {
-            position: 'bottom'
-        },
+    const pieOptions = {
+        chart: { type: 'pie' },
+        labels: nameSubCategories,
+        fill: { opacity: 1 },
+        stroke: { width: 1, colors: undefined },
+        legend: { position: 'bottom' },
         theme: {
             monochrome: {
                 enabled: true,
@@ -71,40 +44,42 @@ const ChartHome = () => {
                 shadeIntensity: 0.6
             }
         }
-    });
-
-    useEffect(() => {
-        setBarOptions((prevOptions) => ({
-            ...prevOptions,
-            xaxis: {
-                categories: nameSubCategories
-            }
-        }));
-        setPieOptions((prevOptions) => ({
-            ...prevOptions,
-            labels: nameSubCategories
-        }));
-    }, [nameSubCategories]);
+    };
 
     const getDataSubCategories = async () => {
-        const datas = await subCategoriesService.getSubCategoriesById(user?._id);
-        const getNameSubCategories = datas.map((subcategory) => subcategory.name);
-        const getBudgetSubCategories = datas.map((subcategory) => subcategory.budget.budget);
+        try {
+            const datas = await subCategoriesService.getSubCategoriesById(user?._id);
+            const validSubCategories = datas.filter(subcategory => subcategory.budget?.budget != null);
 
-        setSeries(getBudgetSubCategories);
-        setNameSubCategories(getNameSubCategories);
+            if (validSubCategories.length === 0) {
+                setNameSubCategories([]);
+                setSeries([]);
+                setPercentage([]);
+                return;
+            }
+
+            const getNameSubCategories = validSubCategories.map(subcategory => subcategory.name);
+            const getBudgetSubCategories = validSubCategories.map(subcategory => subcategory.budget.budget);
+
+            setNameSubCategories(getNameSubCategories);
+            setSeries(getBudgetSubCategories);
+        } catch (error) {
+            console.error("Error fetching subcategories: ", error);
+        }
     }
 
     useEffect(() => {
-        getDataSubCategories();
+        if (user?._id) {
+            getDataSubCategories();
+        }
     }, [user]);
 
-    const data = [...nameSubCategories, ...series];
-
-    useMemo(() => {
-        const total = series.reduce((acc, num) => acc + num, 0);
-        const caculatorPercentage = series.map(num => Math.floor((num / total) * 100));
-        setPercentage(caculatorPercentage);
+    useEffect(() => {
+        if (series.length > 0) {
+            const total = series.reduce((acc, num) => acc + num, 0);
+            const caculatorPercentage = series.map(num => Math.floor((num / total) * 100));
+            setPercentage(caculatorPercentage);
+        }
     }, [series]);
 
     const handleChartChange = (chartType) => {
@@ -113,7 +88,7 @@ const ChartHome = () => {
 
     return (
         <>
-            {data.length === 0 ? (
+            {series.length === 0 ? (
                 <div className='flex justify-center items-center'>
                     <span className='text-[25px]'>Hiện tại chưa có dữ liệu vui lòng thêm chi tiêu và ngân sách</span>
                 </div>
